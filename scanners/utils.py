@@ -140,8 +140,8 @@ def scan(command):
     try:
         response = subprocess.check_output(command, shell=False)
         return str(response, encoding='UTF-8')
-    except subprocess.CalledProcessError:
-        logging.warn("Error running %s." % (str(command)))
+    except subprocess.CalledProcessError as e:
+        logging.warn("Error running %s.\n\n%s" % (str(command), str(e.output)))
         return None
 
 
