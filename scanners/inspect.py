@@ -28,44 +28,45 @@ def scan(domain, options):
             return None
 
     else:
-        logging.debug("\t %s %s --http" % (command, domain))
-        raw = utils.scan([command, domain, "--http"])
+        logging.debug("\t %s %s [version 2]" % (command, domain))
+        raw = utils.scan([command, "inspect", domain, "--https", "--hsts", "--json", "--all"])
         if not raw:
             utils.write(utils.invalid({}), cache)
             return None
         utils.write(raw, cache)
         data = json.loads(raw)
 
-    # TODO: get this from a site-inspector field directly
-    canonical_https = data['endpoints']['https'][data['canonical_endpoint']]
-    # TODO: guarantee these as present in site-inspector
-    https_valid = canonical_https.get('https_valid', False)
-    https_bad_chain = canonical_https.get('https_bad_chain', False)
-    https_bad_name = canonical_https.get('https_bad_name', False)
-    # TODO: site-inspector should float this up
-    hsts_details = canonical_https.get('hsts_details', {})
-    max_age = hsts_details.get('max_age', None)
+    # # TODO: get this from a site-inspector field directly
+    # canonical_https = data['endpoints']['https'][data['canonical_endpoint']]
+    # # TODO: guarantee these as present in site-inspector
+    # https_valid = canonical_https.get('https_valid', False)
+    # https_bad_chain = canonical_https.get('https_bad_chain', False)
+    # https_bad_name = canonical_https.get('https_bad_name', False)
+    # # TODO: site-inspector should float this up
+    # hsts_details = canonical_https.get('hsts_details', {})
+    # max_age = hsts_details.get('max_age', None)
 
     yield [
-        data['canonical'], data['up'],
-        data['redirect'], data['redirect_to'],
-        https_valid, data['default_https'], data['downgrade_https'],
-        data['enforce_https'],
-        https_bad_chain, https_bad_name,
-        data['hsts'], data['hsts_header'],
-        max_age,
-        data['hsts_entire_domain'],
-        data['hsts_entire_domain_preload'],
-        data['broken_root'], data['broken_www']
+        data['canonical_endpoint']['uri'],
+        data['up'],
+        # data['redirect'], data['redirect_to'],
+        # https_valid, data['default_https'], data['downgrade_https'],
+        # data['enforce_https'],
+        # https_bad_chain, https_bad_name,
+        # data['hsts'], data['hsts_header'],
+        # max_age,
+        # data['hsts_entire_domain'],
+        # data['hsts_entire_domain_preload'],
+        # data['broken_root'], data['broken_www']
     ]
 
 headers = [
-    "Canonical", "Live",
-    "Redirect", "Redirect To",
-    "Valid HTTPS", "Defaults to HTTPS",
-    "Downgrades HTTPS", "Strictly Forces HTTPS",
-    "HTTPS Bad Chain", "HTTPS Bad Hostname",
-    "HSTS", "HSTS Header", "HSTS Max Age",
-    "HSTS All Subdomains", "HSTS Preload Ready",
-    "Broken Root", "Broken WWW"
+    "Canonical", "Up",
+    # "Redirect", "Redirect To",
+    # "Valid HTTPS", "Defaults to HTTPS",
+    # "Downgrades HTTPS", "Strictly Forces HTTPS",
+    # "HTTPS Bad Chain", "HTTPS Bad Hostname",
+    # "HSTS", "HSTS Header", "HSTS Max Age",
+    # "HSTS All Subdomains", "HSTS Preload Ready",
+    # "Broken Root", "Broken WWW"
 ]
