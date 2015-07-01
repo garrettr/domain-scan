@@ -2,17 +2,29 @@ import logging
 
 from phantomas import Phantomas, PhantomasError
 
+from scanners import utils
+
 command = Phantomas.CMD
 init = None
 
 def scan(domain, options):
     logging.debug("[%s][pageload]" % domain)
 
-    if not (domain.startswith('http://') or
-            domain.startswith('https://')):
-        domain = 'http://' + domain
+    # If inspection data exists, check to see if we can use it to determine the
+    # canonical hostname
+    inspection = utils.data_for(domain, 'inspect')
+    if inspection and inspection.get("canonical"):
+        logging.debug("Using canonical hostname from inspect module: %s => %s"
+                      % (domain, inspection.get('canonical')))
+        domain = inspection.get('canonical')
+    else:
+        # Otherwise, prepend a scheme if one is not included, since Phantomas
+        # needs one to work.
+        if not (domain.startswith('http://') or
+                domain.startswith('https://')):
+            domain = 'http://' + domain
 
-    test = Phantomas(url=domain)
+    test = Phantomas(url=domain, debug=True)
     try:
         results = test.run()
     except PhantomasError as err:
